@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { signIn } from '../lib/auth';
 
@@ -7,15 +7,29 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const { error } = await signIn(email, password);
-    if (error) {
-      setError(error.message);
-    } else {
-      navigate('/');
+    setError('');
+    setLoading(true);
+
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          setError('Invalid email or password. Please try again.');
+        } else {
+          setError(error.message);
+        }
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -25,7 +39,7 @@ export function Login() {
         <div className="flex justify-center mb-6">
           <Shield className="w-12 h-12 text-[#051f20]" />
         </div>
-        <h2 className="text-2xl font-bold text-center text-[#0b2b26] mb-6">Login to EthicalHack</h2>
+        <h2 className="text-2xl font-bold text-center text-[#0b2b26] mb-6">Welcome Back</h2>
         {error && (
           <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4">
             {error}
@@ -54,16 +68,17 @@ export function Login() {
           </div>
           <button
             type="submit"
-            className="w-full bg-[#051f20] text-white rounded-md py-2 hover:bg-[#0b2b26] transition-colors"
+            disabled={loading}
+            className="w-full bg-[#051f20] text-white rounded-md py-2 hover:bg-[#0b2b26] transition-colors disabled:opacity-50"
           >
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-[#153832]">
           Don't have an account?{' '}
-          <a href="/signup" className="text-[#255346] hover:underline">
+          <Link to="/signup" className="text-[#255346] hover:underline">
             Sign up
-          </a>
+          </Link>
         </p>
       </div>
     </div>

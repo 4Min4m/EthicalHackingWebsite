@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
-import { AuthProvider } from './components/AuthContext';
+import { AuthProvider, useAuth } from './components/AuthContext';
 import { Dashboard } from './pages/Dashboard';
 import { Community } from './pages/Community';
 import { Training } from './pages/Training';
@@ -9,16 +9,37 @@ import { Incidents } from './pages/Incidents';
 import { Leaderboard } from './pages/Leaderboard';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
-import { useAuth } from './components/AuthContext';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-[#daf1df] flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md">
+          <p className="text-[#0b2b26]">Loading...</p>
+        </div>
+      </div>
+    );
   }
   
   return user ? <>{children}</> : <Navigate to="/login" />;
+}
+
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#daf1df] flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md">
+          <p className="text-[#0b2b26]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  return !user ? <>{children}</> : <Navigate to="/" />;
 }
 
 function App() {
@@ -26,8 +47,22 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <Signup />
+              </PublicRoute>
+            }
+          />
           <Route
             path="/"
             element={

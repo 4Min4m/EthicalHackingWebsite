@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { signUp } from '../lib/auth';
 
@@ -7,15 +7,34 @@ export function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const { error } = await signUp(email, password);
-    if (error) {
-      setError(error.message);
-    } else {
-      navigate('/login');
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const { error } = await signUp(email, password);
+      if (error) {
+        if (error.message.includes('User already registered')) {
+          setError('This email is already registered. Please sign in instead.');
+        } else {
+          setError(error.message);
+        }
+      } else {
+        setSuccess('Account created successfully! Please sign in.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -29,6 +48,11 @@ export function Signup() {
         {error && (
           <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4">
             {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-50 text-green-500 p-3 rounded-md mb-4">
+            {success}
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -54,16 +78,17 @@ export function Signup() {
           </div>
           <button
             type="submit"
-            className="w-full bg-[#051f20] text-white rounded-md py-2 hover:bg-[#0b2b26] transition-colors"
+            disabled={loading}
+            className="w-full bg-[#051f20] text-white rounded-md py-2 hover:bg-[#0b2b26] transition-colors disabled:opacity-50"
           >
-            Sign Up
+            {loading ? 'Creating account...' : 'Sign Up'}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-[#153832]">
           Already have an account?{' '}
-          <a href="/login" className="text-[#255346] hover:underline">
+          <Link to="/login" className="text-[#255346] hover:underline">
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>
