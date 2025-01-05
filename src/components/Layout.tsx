@@ -16,7 +16,10 @@ export function Layout() {
   return (
     <div className="min-h-screen bg-[#daf1df]">
       <nav className="bg-[#051f20] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <boltAction type="file" filePath="src/components/Layout.tsx">          <div className="flex items-center justify-between h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Remove or fix this custom tag */}
+          {/* <boltAction type="file" filePath="src/components/Layout.tsx" /> */}
+          <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center space-x-2">
               <Shield className="w-8 h-8" />
               <span className="font-bold text-xl">EthicalHack</span>
